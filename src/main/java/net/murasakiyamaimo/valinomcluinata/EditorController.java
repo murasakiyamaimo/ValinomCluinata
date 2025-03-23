@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 
 import java.util.Objects;
 
-public class CanvasController {
+public class EditorController {
 
     @FXML
     private Canvas score;
@@ -29,9 +29,9 @@ public class CanvasController {
             }
         }
 
-        imageOne = new Image(Objects.requireNonNull(CanvasController.class.getResourceAsStream("images/Step-one.png")));
-        imageLong = new Image(Objects.requireNonNull(CanvasController.class.getResourceAsStream("images/Step-long.png")));
-        imageDefault = new Image(Objects.requireNonNull(CanvasController.class.getResourceAsStream("images/Step-null.png")));
+        imageOne = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-one.png")));
+        imageLong = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-long.png")));
+        imageDefault = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-null.png")));
 
         // ImageViewに初期画像を設定
         imageView1.setImage(imageDefault);
@@ -40,11 +40,15 @@ public class CanvasController {
         imageView4.setImage(imageDefault);
 
         // イベントハンドラの設定
-        setImageViewHandler(imageView1);
-        setImageViewHandler(imageView2);
-        setImageViewHandler(imageView3);
-        setImageViewHandler(imageView4);
+        rhythm_setHandler(imageView1);
+        rhythm_setHandler(imageView2);
+        rhythm_setHandler(imageView3);
+        rhythm_setHandler(imageView4);
 
+        D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png"))));
+        D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png"))));
+        D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D.png"))));
+        D5.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D.png"))));
 
     }
 
@@ -81,13 +85,13 @@ public class CanvasController {
     private boolean isDragging;
     private static final double DRAG_THRESHOLD = 1.0;
 
-    private void setImageViewHandler(ImageView imageView) {
-        imageView.setOnMousePressed(this::handleMousePressed);
-        imageView.setOnMouseDragged(this::handleMouseDragged);
-        imageView.setOnMouseReleased(this::handleMouseReleased);
+    private void rhythm_setHandler(ImageView imageView) {
+        imageView.setOnMousePressed(this::rhythm_handleMousePressed);
+        imageView.setOnMouseDragged(this::rhythm_handleMouseDragged);
+        imageView.setOnMouseReleased(this::rhythm_handleMouseReleased);
     }
 
-    private void handleMousePressed(MouseEvent event) {
+    private void rhythm_handleMousePressed(MouseEvent event) {
         if (event.isShiftDown()) {
             selectedImageView = (ImageView) event.getSource();
             startX = event.getX();
@@ -96,7 +100,7 @@ public class CanvasController {
         }
     }
 
-    private void handleMouseDragged(MouseEvent event) {
+    private void rhythm_handleMouseDragged(MouseEvent event) {
         if (event.isShiftDown() && selectedImageView != null) {
             double deltaX = Math.abs(event.getX() - startX);
             double deltaY = Math.abs(event.getY() - startY);
@@ -106,11 +110,11 @@ public class CanvasController {
         }
     }
 
-    private void handleMouseReleased(MouseEvent event) {
+    private void rhythm_handleMouseReleased(MouseEvent event) {
         if (event.isShiftDown() && selectedImageView != null) {
             if (isDragging) {
                 endImageView = (ImageView) event.getSource();
-                updateImagesBetween(selectedImageView, endImageView);
+                rhythm_UpdateImagesBetween(selectedImageView, endImageView);
             } else if (!isDragging) {
                 // クリック処理
                 if (selectedImageView.getImage() == imageOne) {
@@ -125,7 +129,7 @@ public class CanvasController {
         isDragging = false;
     }
 
-    private void updateImagesBetween(ImageView startImageView, ImageView endImageView) {
+    private void rhythm_UpdateImagesBetween(ImageView startImageView, ImageView endImageView) {
         int startColumn = GridPane.getColumnIndex(startImageView);
         int startRow = GridPane.getRowIndex(startImageView);
         int endColumn = GridPane.getColumnIndex(endImageView);
@@ -145,4 +149,23 @@ public class CanvasController {
         }
 
     }
+
+
+    @FXML
+    private ImageView D2;
+    @FXML
+    private ImageView D3;
+    @FXML
+    private ImageView D4;
+    @FXML
+    private ImageView D5;
+
+    private void pitch_setHandler(ImageView imageView) {
+        imageView.setOnMouseClicked(this::pitch_handleMouseClicked);
+    }
+
+    private void pitch_handleMouseClicked(MouseEvent event) {
+
+    }
+
 }
