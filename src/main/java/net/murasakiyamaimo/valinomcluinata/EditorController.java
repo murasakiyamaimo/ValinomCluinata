@@ -22,10 +22,27 @@ public class EditorController {
     @FXML
     private GridPane gridPane;
 
+    private GraphicsContext gc = score.getGraphicsContext2D();
+
     public void initialize() {
         if (AnchorPane != null) {
             if (score != null) {
-                draw();
+                double width = score.getWidth();
+                double height = score.getHeight();
+
+                gc.setFill(Color.web("#676681"));
+                gc.fillRect(0, 0, width, height);
+
+                gc.setStroke(Color.web("a9a9b4"));
+                gc.strokeLine(0, height/2, width, height/2);
+
+                gc.setStroke(Color.web("#8d8c9d"));
+                for (double i = height/2 % 169; i < height; i += 169) {
+                    gc.strokeLine(0, i, width, i);
+                }
+
+                gc.setFill(Color.web("#f27992"));
+                gc.fillRect(10, height/2,16, 169);
             }
         }
 
@@ -69,20 +86,6 @@ public class EditorController {
         pitch_setHandler(D3_Down);
         pitch_setHandler(D4_Down);
         pitch_setHandler(D5_Down);
-    }
-
-    public void draw() {
-        if(score != null){
-            double width = score.getWidth();
-            double height = score.getHeight();
-
-            GraphicsContext gc = score.getGraphicsContext2D();
-            gc.clearRect(0, 0, width, height);
-
-            gc.setStroke(Color.RED);
-            gc.strokeLine(0, 0, width, height);
-            gc.strokeLine(0, height, width, 0);
-        }
     }
 
     @FXML
