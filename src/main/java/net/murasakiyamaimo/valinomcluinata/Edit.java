@@ -8,11 +8,13 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Edit extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Edit.class.getResource("Editor" + ".fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
-        stage.setTitle("Hello!");
+        EditorController controller = fxmlLoader.getController();
+        stage.setTitle("ValinomCluinata");
         stage.setScene(scene);
         stage.show();
     }

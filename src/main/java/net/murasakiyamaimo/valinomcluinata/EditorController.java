@@ -6,11 +6,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class EditorController {
@@ -22,13 +24,19 @@ public class EditorController {
     @FXML
     private GridPane gridPane;
 
-    private GraphicsContext gc = score.getGraphicsContext2D();
+    private GraphicsContext gc;
+
+    private double width;
+    private double height;
+
 
     public void initialize() {
         if (AnchorPane != null) {
             if (score != null) {
-                double width = score.getWidth();
-                double height = score.getHeight();
+                gc = score.getGraphicsContext2D();
+
+                width = score.getWidth();
+                height = score.getHeight();
 
                 gc.setFill(Color.web("#676681"));
                 gc.fillRect(0, 0, width, height);
@@ -37,14 +45,20 @@ public class EditorController {
                 gc.strokeLine(0, height/2, width, height/2);
 
                 gc.setStroke(Color.web("#8d8c9d"));
-                for (double i = height/2 % 169; i < height; i += 169) {
+                for (double i = height/2 % 160; i < height; i += 160) {
                     gc.strokeLine(0, i, width, i);
                 }
 
                 gc.setFill(Color.web("#f27992"));
-                gc.fillRect(10, height/2,16, 169);
+                gc.fillRect(10, height/2,16, 160);
+
+                gc.drawImage(rootImage, 30, height/2 - 13.5);
+                gc.drawImage(pitch_line, 60, height/2 - 2.75);
             }
         }
+
+        rootX.add(30.0);
+        rootY.add(height/2);
 
         imageOne = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-one.png")));
         imageLong = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-long.png")));
@@ -61,11 +75,6 @@ public class EditorController {
         rhythm_setHandler(dragImageView2);
         rhythm_setHandler(dragImageView3);
         rhythm_setHandler(dragImageView4);
-
-        image2D = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png")));
-        image3D = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png")));
-        image4D = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D.png")));
-        image5D = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D.png")));
 
         D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png"))));
         D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png"))));
@@ -137,7 +146,7 @@ public class EditorController {
             if (isDragging) {
                 endImageView = (ImageView) event.getSource();
                 rhythm_UpdateImagesBetween(selectedImageView, endImageView);
-            } else if (!isDragging) {
+            } else {
                 // クリック処理
                 if (selectedImageView.getImage() == imageOne) {
                     selectedImageView.setImage(imageDefault);
@@ -192,10 +201,11 @@ public class EditorController {
 
     private final int[] pitch = new int[5];
 
-    private Image image2D;
-    private Image image3D;
-    private Image image4D;
-    private Image image5D;
+    private final Image pitch_line = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pitch-line.png")));
+    private final Image rootImage = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/root-symbol.png")));
+    private ArrayList<Double> rootX = new ArrayList<Double>();
+    private ArrayList<Double> rootY = new ArrayList<Double>();
+    private int index = 0;
 
     private ImageView clickedImageView;
     private ImageView enteredImageView;
@@ -217,8 +227,7 @@ public class EditorController {
             D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D_selected.png"))));
         } else if (enteredImageView == D5) {
             D5.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_selected.png"))));
-        }
-        if (enteredImageView == D2_Down) {
+        } else if (enteredImageView == D2_Down) {
             D2_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D_Down_selected.png"))));
         } else if (enteredImageView == D3_Down) {
             D3_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D_Down_selected.png"))));
@@ -227,6 +236,7 @@ public class EditorController {
         } else if (enteredImageView == D5_Down) {
             D5_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_Down_selected.png"))));
         }
+
     }
 
     private void pitch_handleMouseExit(MouseEvent event) {
@@ -239,8 +249,7 @@ public class EditorController {
             D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D.png"))));
         } else if (exitedImageView == D5) {
             D5.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D.png"))));
-        }
-        if (exitedImageView == D2_Down) {
+        } else if (exitedImageView == D2_Down) {
             D2_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D_Down.png"))));
         } else if (exitedImageView == D3_Down) {
             D3_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D_Down.png"))));
@@ -249,27 +258,98 @@ public class EditorController {
         } else if (exitedImageView == D5_Down) {
             D5_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_Down.png"))));
         }
+
+    }
+
+    private void drawRoot(boolean isUp, double px) {
+        gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
+            if (isUp) {
+                gc.setFill(Color.web("#676681"));
+                gc.fillRect(rootX.get(index), rootY.get(index) + px - 13.5, 24, 27);
+                if ((rootY.get(index) + px - height/2) % 160 == 0) {
+                        if (rootY.get(index) + px == height/2) {
+                            gc.setStroke(Color.web("#a9a9b4"));
+                            gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
+                        }else {
+                            gc.setStroke(Color.web("#8d8c9d"));
+                            gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
+                        }
+                }
+            }else {
+                gc.setFill(Color.web("#676681"));
+                gc.fillRect(rootX.get(index), rootY.get(index) - px - 13.5, 24, 27);
+                if ((rootY.get(index) - px - height / 2) % 160 == 0) {
+                    if (rootY.get(index) - px == height / 2) {
+                        gc.setStroke(Color.web("#a9a9b4"));
+                        gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                    } else {
+                        gc.setStroke(Color.web("#8d8c9d"));
+                        gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                    }
+
+                }
+            }
     }
 
     private void pitch_handleMouseClicked(MouseEvent event) {
         clickedImageView = (ImageView) event.getSource();
         if (clickedImageView == D2) {
             pitch[1] += 1;
+            rootY.set(index, rootY.get(index) - 160);
+            drawRoot(true, 160);
+            System.out.println("Drew!! " + rootY.get(index) + " And " + index + " And " + rootX.get(index));
         } else if (clickedImageView == D3) {
             pitch[2] += 1;
+            rootY.set(index, rootY.get(index) - 90);
+            drawRoot(true, 90);
         } else if (clickedImageView == D4) {
             pitch[3] += 1;
+            rootY.set(index, rootY.get(index) - 220);
+            drawRoot(true, 220);
         } else if (clickedImageView == D5) {
             pitch[4] += 1;
-        }
-        if (clickedImageView == D2_Down) {
+            rootY.set(index, rootY.get(index) - 392);
+            drawRoot(true, 392);
+        } else if (clickedImageView == D2_Down) {
             pitch[1] -= 1;
+            rootY.set(index, rootY.get(index) + 160);
+            drawRoot(false, 160);
+            System.out.println("Drew!! " + rootY.get(index) + " And " + index + " And " + rootX.get(index));
         } else if (clickedImageView == D3_Down) {
             pitch[2] -= 1;
+            rootY.set(index, rootY.get(index) + 90);
+            drawRoot(false, 90);
         } else if (clickedImageView == D4_Down) {
             pitch[3] -= 1;
+            rootY.set(index, rootY.get(index) + 220);
+            drawRoot(false, 220);
         } else if (clickedImageView == D5_Down) {
             pitch[4] -= 1;
+            rootY.set(index, rootY.get(index) + 392);
+            drawRoot(false, 392);
+        }
+    }
+
+    public void scoreIndex_handleKeyPressed(KeyEvent event) {
+        if (event.isControlDown()) {
+            switch (event.getCode()) {
+                case RIGHT -> {
+                    System.out.println("find RIGHT KEY");
+                    index++;
+                    if (index >= rootX.size()) {
+                        rootX.add(rootX.get(index - 1) + 233);
+                        rootY.add(height/2);
+                        gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
+                    }
+                    System.out.println("Now index is " + index);
+                }
+                case LEFT -> {
+                    System.out.println("find LEFT KEY");
+                    index--;
+                    System.out.println("Now index is " + index);
+                }
+
+            }
         }
     }
 
