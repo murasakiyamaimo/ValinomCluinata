@@ -14,6 +14,8 @@ public class Edit extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Edit.class.getResource("Editor" + ".fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
         EditorController controller = fxmlLoader.getController();
+        Synthesizer syn = new Synthesizer();
+        double[] frequency = {261.63, 392.44, 327.03, 490.55};
         stage.setTitle("ValinomCluinata");
         stage.setScene(scene);
         stage.show();

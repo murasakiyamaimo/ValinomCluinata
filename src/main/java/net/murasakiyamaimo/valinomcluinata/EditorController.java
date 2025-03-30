@@ -42,23 +42,28 @@ public class EditorController {
                 gc.fillRect(0, 0, width, height);
 
                 gc.setStroke(Color.web("a9a9b4"));
-                gc.strokeLine(0, height/2, width, height/2);
+                gc.strokeLine(0, height / 2, width, height / 2);
 
                 gc.setStroke(Color.web("#8d8c9d"));
-                for (double i = height/2 % 160; i < height; i += 160) {
+                for (double i = height / 2 % 160; i < height; i += 160) {
                     gc.strokeLine(0, i, width, i);
                 }
 
                 gc.setFill(Color.web("#f27992"));
-                gc.fillRect(10, height/2,16, 160);
+                gc.fillRect(60, height / 2 - 160, 16, 160);
 
-                gc.drawImage(rootImage, 30, height/2 - 13.5);
-                gc.drawImage(pitch_line, 60, height/2 - 2.75);
+                gc.setFill(Color.web("#6cd985"));
+                gc.fillRect(60 + 173 - 16, height /2 - 90, 16, 90);
+
+                gc.drawImage(rootImage, 30, height / 2 - 13.5);
+                gc.drawImage(pitch_line, 60, height / 2 - 2.75);
+                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 90);
+                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 160);
             }
         }
 
         rootX.add(30.0);
-        rootY.add(height/2);
+        rootY.add(height / 2);
 
         imageOne = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-one.png")));
         imageLong = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-long.png")));
@@ -169,8 +174,7 @@ public class EditorController {
         if (endColumn > startColumn && startRow == endRow) {
             for (int column = startColumn + 1; column <= endColumn; column++) {
                 for (Node node : gridPane.getChildren()) {
-                    if (node instanceof ImageView) {
-                        ImageView imageView = (ImageView) node;
+                    if (node instanceof ImageView imageView) {
                         if (GridPane.getColumnIndex(imageView) == column && GridPane.getRowIndex(imageView) == startRow) {
                             imageView.setImage(imageLong);
                         }
@@ -207,10 +211,6 @@ public class EditorController {
     private ArrayList<Double> rootY = new ArrayList<Double>();
     private int index = 0;
 
-    private ImageView clickedImageView;
-    private ImageView enteredImageView;
-    private ImageView exitedImageView;
-
     private void pitch_setHandler(ImageView imageView) {
         imageView.setOnMouseClicked(this::pitch_handleMouseClicked);
         imageView.setOnMouseEntered(this::pitch_handleMouseEntered);
@@ -218,86 +218,110 @@ public class EditorController {
     }
 
     private void pitch_handleMouseEntered(MouseEvent event) {
-        enteredImageView = (ImageView) event.getSource();
+        ImageView enteredImageView = (ImageView) event.getSource();
+        String imageName = null;
+
         if (enteredImageView == D2) {
-            D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D_selected.png"))));
+            imageName = "2D_selected.png";
         } else if (enteredImageView == D3) {
-            D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D_selected.png"))));
+            imageName = "3D_selected.png";
         } else if (enteredImageView == D4) {
-            D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D_selected.png"))));
+            imageName = "4D_selected.png";
         } else if (enteredImageView == D5) {
-            D5.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_selected.png"))));
+            imageName = "5D_selected.png";
         } else if (enteredImageView == D2_Down) {
-            D2_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D_Down_selected.png"))));
+            imageName = "2D_Down_selected.png";
         } else if (enteredImageView == D3_Down) {
-            D3_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D_Down_selected.png"))));
+            imageName = "3D_Down_selected.png";
         } else if (enteredImageView == D4_Down) {
-            D4_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D_Down_selected.png"))));
+            imageName = "4D_Down_selected.png";
         } else if (enteredImageView == D5_Down) {
-            D5_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_Down_selected.png"))));
+            imageName = "5D_Down_selected.png";
         }
 
+        if (imageName != null) {
+            enteredImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/" + imageName))));
+        }
     }
 
     private void pitch_handleMouseExit(MouseEvent event) {
-        exitedImageView = (ImageView) event.getSource();
+        ImageView exitedImageView = (ImageView) event.getSource();
+        String imageName = null;
+
         if (exitedImageView == D2) {
-            D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png"))));
+            imageName = "2D.png";
         } else if (exitedImageView == D3) {
-            D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png"))));
+            imageName = "3D.png";
         } else if (exitedImageView == D4) {
-            D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D.png"))));
+            imageName = "4D.png";
         } else if (exitedImageView == D5) {
-            D5.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D.png"))));
+            imageName = "5D.png";
         } else if (exitedImageView == D2_Down) {
-            D2_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D_Down.png"))));
+            imageName = "2D_Down.png";
         } else if (exitedImageView == D3_Down) {
-            D3_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D_Down.png"))));
+            imageName = "3D_Down.png";
         } else if (exitedImageView == D4_Down) {
-            D4_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D_Down.png"))));
+            imageName = "4D_Down.png";
         } else if (exitedImageView == D5_Down) {
-            D5_Down.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/5D_Down.png"))));
+            imageName = "5D_Down.png";
         }
 
+        if (imageName != null) {
+            exitedImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/" + imageName))));
+        }
     }
 
     private void drawRoot(boolean isUp, double px) {
         gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
-            if (isUp) {
-                gc.setFill(Color.web("#676681"));
-                gc.fillRect(rootX.get(index), rootY.get(index) + px - 13.5, 24, 27);
-                if ((rootY.get(index) + px - height/2) % 160 == 0) {
-                        if (rootY.get(index) + px == height/2) {
-                            gc.setStroke(Color.web("#a9a9b4"));
-                            gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
-                        }else {
-                            gc.setStroke(Color.web("#8d8c9d"));
-                            gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
-                        }
+        if (isUp) {
+            gc.setFill(Color.web("#676681"));
+            gc.fillRect(rootX.get(index), rootY.get(index) + px - 13.5, 24, 27);
+            if ((rootY.get(index) + px - height / 2) % 160 == 0) {
+                if (rootY.get(index) + px == height / 2) {
+                    gc.setStroke(Color.web("#a9a9b4"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
+                } else {
+                    gc.setStroke(Color.web("#8d8c9d"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
                 }
-            }else {
-                gc.setFill(Color.web("#676681"));
-                gc.fillRect(rootX.get(index), rootY.get(index) - px - 13.5, 24, 27);
-                if ((rootY.get(index) - px - height / 2) % 160 == 0) {
-                    if (rootY.get(index) - px == height / 2) {
-                        gc.setStroke(Color.web("#a9a9b4"));
-                        gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
-                    } else {
-                        gc.setStroke(Color.web("#8d8c9d"));
-                        gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
-                    }
-
+            } else if ((Math.abs(rootY.get(index) + px - height / 2) % 160) <= 27) {
+                if (rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160 == height / 2) {
+                    gc.setStroke(Color.web("#a9a9b4"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160);
+                } else {
+                    gc.setStroke(Color.web("#8d8c9d"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160);
                 }
             }
+        } else {
+            gc.setFill(Color.web("#676681"));
+            gc.fillRect(rootX.get(index), rootY.get(index) - px - 13.5, 24, 27);
+            if ((rootY.get(index) - px - height / 2) % 160 == 0) {
+                if (rootY.get(index) - px == height / 2) {
+                    gc.setStroke(Color.web("#a9a9b4"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                } else {
+                    gc.setStroke(Color.web("#8d8c9d"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                }
+            } else if ((Math.abs(rootY.get(index) - px - height / 2) % 160) <= 27) {
+                if (rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160 == height / 2) {
+                    gc.setStroke(Color.web("#a9a9b4"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160);
+                } else {
+                    gc.setStroke(Color.web("#8d8c9d"));
+                    gc.strokeLine(rootX.get(index), rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160);
+                }
+            }
+        }
     }
 
     private void pitch_handleMouseClicked(MouseEvent event) {
-        clickedImageView = (ImageView) event.getSource();
+        ImageView clickedImageView = (ImageView) event.getSource();
         if (clickedImageView == D2) {
             pitch[1] += 1;
             rootY.set(index, rootY.get(index) - 160);
             drawRoot(true, 160);
-            System.out.println("Drew!! " + rootY.get(index) + " And " + index + " And " + rootX.get(index));
         } else if (clickedImageView == D3) {
             pitch[2] += 1;
             rootY.set(index, rootY.get(index) - 90);
@@ -314,7 +338,6 @@ public class EditorController {
             pitch[1] -= 1;
             rootY.set(index, rootY.get(index) + 160);
             drawRoot(false, 160);
-            System.out.println("Drew!! " + rootY.get(index) + " And " + index + " And " + rootX.get(index));
         } else if (clickedImageView == D3_Down) {
             pitch[2] -= 1;
             rootY.set(index, rootY.get(index) + 90);
@@ -338,15 +361,21 @@ public class EditorController {
                     index++;
                     if (index >= rootX.size()) {
                         rootX.add(rootX.get(index - 1) + 233);
-                        rootY.add(height/2);
+                        rootY.add(height / 2);
                         gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
                     }
                     System.out.println("Now index is " + index);
                 }
                 case LEFT -> {
                     System.out.println("find LEFT KEY");
-                    index--;
+                    if (index > 0) {
+                        index--;
+                    }
                     System.out.println("Now index is " + index);
+                }
+                case UP -> {
+                    System.out.println("find UP KEY");
+
                 }
 
             }
