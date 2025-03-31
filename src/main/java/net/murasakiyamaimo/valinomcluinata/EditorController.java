@@ -12,8 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public class EditorController {
 
@@ -209,7 +208,9 @@ public class EditorController {
     private final Image rootImage = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/root-symbol.png")));
     private ArrayList<Double> rootX = new ArrayList<Double>();
     private ArrayList<Double> rootY = new ArrayList<Double>();
-    private int index = 0;
+    Map<Integer, List> pitchMap = new HashMap<>();
+    private int sideIndex = 0;
+    private int lengthIndex = 0;
 
     private void pitch_setHandler(ImageView imageView) {
         imageView.setOnMouseClicked(this::pitch_handleMouseClicked);
@@ -272,45 +273,45 @@ public class EditorController {
     }
 
     private void drawRoot(boolean isUp, double px) {
-        gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
+        gc.drawImage(rootImage, rootX.get(sideIndex), rootY.get(sideIndex) - 13.5);
         if (isUp) {
             gc.setFill(Color.web("#676681"));
-            gc.fillRect(rootX.get(index), rootY.get(index) + px - 13.5, 24, 27);
-            if ((rootY.get(index) + px - height / 2) % 160 == 0) {
-                if (rootY.get(index) + px == height / 2) {
+            gc.fillRect(rootX.get(sideIndex), rootY.get(sideIndex) + px - 13.5, 24, 27);
+            if ((rootY.get(sideIndex) + px - height / 2) % 160 == 0) {
+                if (rootY.get(sideIndex) + px == height / 2) {
                     gc.setStroke(Color.web("#a9a9b4"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) + px, rootX.get(sideIndex) + 24, rootY.get(sideIndex) + px);
                 } else {
                     gc.setStroke(Color.web("#8d8c9d"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) + px, rootX.get(index) + 24, rootY.get(index) + px);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) + px, rootX.get(sideIndex) + 24, rootY.get(sideIndex) + px);
                 }
-            } else if ((Math.abs(rootY.get(index) + px - height / 2) % 160) <= 27) {
-                if (rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160 == height / 2) {
+            } else if ((Math.abs(rootY.get(sideIndex) + px - height / 2) % 160) <= 27) {
+                if (rootY.get(sideIndex) + px - (rootY.get(sideIndex) + px - height / 2) % 160 == height / 2) {
                     gc.setStroke(Color.web("#a9a9b4"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) + px - (rootY.get(sideIndex) + px - height / 2) % 160, rootX.get(sideIndex) + 24, rootY.get(sideIndex) + px - (rootY.get(sideIndex) + px - height / 2) % 160);
                 } else {
                     gc.setStroke(Color.web("#8d8c9d"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) + px - (rootY.get(index) + px - height / 2) % 160);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) + px - (rootY.get(sideIndex) + px - height / 2) % 160, rootX.get(sideIndex) + 24, rootY.get(sideIndex) + px - (rootY.get(sideIndex) + px - height / 2) % 160);
                 }
             }
         } else {
             gc.setFill(Color.web("#676681"));
-            gc.fillRect(rootX.get(index), rootY.get(index) - px - 13.5, 24, 27);
-            if ((rootY.get(index) - px - height / 2) % 160 == 0) {
-                if (rootY.get(index) - px == height / 2) {
+            gc.fillRect(rootX.get(sideIndex), rootY.get(sideIndex) - px - 13.5, 24, 27);
+            if ((rootY.get(sideIndex) - px - height / 2) % 160 == 0) {
+                if (rootY.get(sideIndex) - px == height / 2) {
                     gc.setStroke(Color.web("#a9a9b4"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) - px, rootX.get(sideIndex) + 24, rootY.get(sideIndex) - px);
                 } else {
                     gc.setStroke(Color.web("#8d8c9d"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) - px, rootX.get(index) + 24, rootY.get(index) - px);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) - px, rootX.get(sideIndex) + 24, rootY.get(sideIndex) - px);
                 }
-            } else if ((Math.abs(rootY.get(index) - px - height / 2) % 160) <= 27) {
-                if (rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160 == height / 2) {
+            } else if ((Math.abs(rootY.get(sideIndex) - px - height / 2) % 160) <= 27) {
+                if (rootY.get(sideIndex) - px - (rootY.get(sideIndex) - px - height / 2) % 160 == height / 2) {
                     gc.setStroke(Color.web("#a9a9b4"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) - px - (rootY.get(sideIndex) - px - height / 2) % 160, rootX.get(sideIndex) + 24, rootY.get(sideIndex) - px - (rootY.get(sideIndex) - px - height / 2) % 160);
                 } else {
                     gc.setStroke(Color.web("#8d8c9d"));
-                    gc.strokeLine(rootX.get(index), rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160, rootX.get(index) + 24, rootY.get(index) - px - (rootY.get(index) - px - height / 2) % 160);
+                    gc.strokeLine(rootX.get(sideIndex), rootY.get(sideIndex) - px - (rootY.get(sideIndex) - px - height / 2) % 160, rootX.get(sideIndex) + 24, rootY.get(sideIndex) - px - (rootY.get(sideIndex) - px - height / 2) % 160);
                 }
             }
         }
@@ -320,35 +321,35 @@ public class EditorController {
         ImageView clickedImageView = (ImageView) event.getSource();
         if (clickedImageView == D2) {
             pitch[1] += 1;
-            rootY.set(index, rootY.get(index) - 160);
+            rootY.set(sideIndex, rootY.get(sideIndex) - 160);
             drawRoot(true, 160);
         } else if (clickedImageView == D3) {
             pitch[2] += 1;
-            rootY.set(index, rootY.get(index) - 90);
+            rootY.set(sideIndex, rootY.get(sideIndex) - 90);
             drawRoot(true, 90);
         } else if (clickedImageView == D4) {
             pitch[3] += 1;
-            rootY.set(index, rootY.get(index) - 220);
+            rootY.set(sideIndex, rootY.get(sideIndex) - 220);
             drawRoot(true, 220);
         } else if (clickedImageView == D5) {
             pitch[4] += 1;
-            rootY.set(index, rootY.get(index) - 392);
+            rootY.set(sideIndex, rootY.get(sideIndex) - 392);
             drawRoot(true, 392);
         } else if (clickedImageView == D2_Down) {
             pitch[1] -= 1;
-            rootY.set(index, rootY.get(index) + 160);
+            rootY.set(sideIndex, rootY.get(sideIndex) + 160);
             drawRoot(false, 160);
         } else if (clickedImageView == D3_Down) {
             pitch[2] -= 1;
-            rootY.set(index, rootY.get(index) + 90);
+            rootY.set(sideIndex, rootY.get(sideIndex) + 90);
             drawRoot(false, 90);
         } else if (clickedImageView == D4_Down) {
             pitch[3] -= 1;
-            rootY.set(index, rootY.get(index) + 220);
+            rootY.set(sideIndex, rootY.get(sideIndex) + 220);
             drawRoot(false, 220);
         } else if (clickedImageView == D5_Down) {
             pitch[4] -= 1;
-            rootY.set(index, rootY.get(index) + 392);
+            rootY.set(sideIndex, rootY.get(sideIndex) + 392);
             drawRoot(false, 392);
         }
     }
@@ -358,24 +359,30 @@ public class EditorController {
             switch (event.getCode()) {
                 case RIGHT -> {
                     System.out.println("find RIGHT KEY");
-                    index++;
-                    if (index >= rootX.size()) {
-                        rootX.add(rootX.get(index - 1) + 233);
+                    sideIndex++;
+                    if (sideIndex >= rootX.size()) {
+                        rootX.add(rootX.get(sideIndex - 1) + 233);
                         rootY.add(height / 2);
-                        gc.drawImage(rootImage, rootX.get(index), rootY.get(index) - 13.5);
+                        gc.drawImage(rootImage, rootX.get(sideIndex), rootY.get(sideIndex) - 13.5);
                     }
-                    System.out.println("Now index is " + index);
+                    System.out.println("Now index is " + sideIndex);
                 }
                 case LEFT -> {
                     System.out.println("find LEFT KEY");
-                    if (index > 0) {
-                        index--;
+                    if (sideIndex > 0) {
+                        sideIndex--;
                     }
-                    System.out.println("Now index is " + index);
+                    System.out.println("Now index is " + sideIndex);
                 }
                 case UP -> {
                     System.out.println("find UP KEY");
-
+                    lengthIndex++;
+                    System.out.println("Now index is " + lengthIndex);
+                }
+                case DOWN -> {
+                    System.out.println("find DOWN KEY");
+                    lengthIndex--;
+                    System.out.println("Now index is " + lengthIndex);
                 }
 
             }

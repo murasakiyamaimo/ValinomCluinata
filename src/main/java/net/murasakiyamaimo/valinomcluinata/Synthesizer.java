@@ -4,6 +4,10 @@ import javax.sound.sampled.*;
 
 public class Synthesizer {
 
+    public static final int SINE = 0;
+    public static final int SAWTOOTH = 1;
+    public static final int SQUARE = 2;
+    public static final int TRIANGLE = 3;
     private final int SAMPLE_RATE = 44100;
 
     public void playSound(double[] frequency, int type, int DURATION) throws LineUnavailableException {
@@ -39,18 +43,18 @@ public class Synthesizer {
             for (int i = 0; i < numSamples; i++) {
                 double time = (double) i / SAMPLE_RATE;
 
-                if (type == 0) {
+                if (type == SINE) {
                     combinedValues[i] += generateSineValue(frequency, time);
-                } else if (type == 1) {
+                } else if (type == SAWTOOTH) {
                     combinedValues[i] += generateSawtoothValue(frequency, time);
-                } else if (type == 2) {
+                } else if (type == SQUARE) {
                     combinedValues[i] += generateSquareValue(frequency, time);
-                } else if (type == 3) {
+                } else if (type == TRIANGLE) {
                     combinedValues[i] += generateTriangleValue(frequency, time);
                 }
             }
         }
-
+        
         // 音量が大きくなりすぎないように調整
         double normalizationFactor = 1.0 / (frequencies.length * 4); // 重ねる波形の種類の数で割る
         for (int i = 0; i < numSamples; i++) {
