@@ -12,7 +12,7 @@ public class Edit extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Edit.class.getResource("Synthesizer" + ".fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         double[] frequency = {261.63, 392.44, 327.03, 490.55};
         stage.setTitle("ValinomCluinata");
         stage.setScene(scene);
