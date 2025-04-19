@@ -1,7 +1,6 @@
 package net.murasakiyamaimo.valinomcluinata;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -10,7 +9,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -23,8 +21,6 @@ public class EditorController {
     private Canvas score;
     @FXML
     private AnchorPane AnchorPane;
-    @FXML
-    private GridPane gridPane;
 
     private GraphicsContext gc;
 
@@ -81,22 +77,6 @@ public class EditorController {
         pitchData.getFirst().setCoordinateX(60.0);
         pitchData.getFirst().setCoordinateY(height/2);
 
-        imageOne = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-one.png")));
-        imageLong = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-long.png")));
-        imageDefault = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-null.png")));
-
-        // ImageViewに初期画像を設定
-        dragImageView1.setImage(imageDefault);
-        dragImageView2.setImage(imageDefault);
-        dragImageView3.setImage(imageDefault);
-        dragImageView4.setImage(imageDefault);
-
-        // イベントハンドラの設定
-        rhythm_setHandler(dragImageView1);
-        rhythm_setHandler(dragImageView2);
-        rhythm_setHandler(dragImageView3);
-        rhythm_setHandler(dragImageView4);
-
         D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png"))));
         D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png"))));
         D4.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/4D.png"))));
@@ -139,90 +119,6 @@ public class EditorController {
     }
 
     private List<Integer> selectedPitchline;
-
-    @FXML
-    private ImageView dragImageView1;
-    @FXML
-    private ImageView dragImageView2;
-    @FXML
-    private ImageView dragImageView3;
-    @FXML
-    private ImageView dragImageView4;
-
-    private Image imageOne;
-    private Image imageLong;
-    private Image imageDefault;
-    private ImageView selectedImageView;
-    private ImageView endImageView;
-    private double startX;
-    private double startY;
-    private boolean isDragging;
-    private static final double DRAG_THRESHOLD = 1.0;
-
-    private void rhythm_setHandler(ImageView imageView) {
-        imageView.setOnMousePressed(this::rhythm_handleMousePressed);
-        imageView.setOnMouseDragged(this::rhythm_handleMouseDragged);
-        imageView.setOnMouseReleased(this::rhythm_handleMouseReleased);
-    }
-
-    private void rhythm_handleMousePressed(MouseEvent event) {
-        if (event.isShiftDown()) {
-            selectedImageView = (ImageView) event.getSource();
-            startX = event.getX();
-            startY = event.getY();
-            isDragging = false;
-        }
-    }
-
-    private void rhythm_handleMouseDragged(MouseEvent event) {
-        if (event.isShiftDown() && selectedImageView != null) {
-            double deltaX = Math.abs(event.getX() - startX);
-            double deltaY = Math.abs(event.getY() - startY);
-            if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
-                isDragging = true;
-            }
-        }
-    }
-
-    private void rhythm_handleMouseReleased(MouseEvent event) {
-        if (event.isShiftDown() && selectedImageView != null) {
-            if (isDragging) {
-                endImageView = (ImageView) event.getSource();
-                rhythm_UpdateImagesBetween(selectedImageView, endImageView);
-            } else {
-                // クリック処理
-                if (selectedImageView.getImage() == imageOne) {
-                    selectedImageView.setImage(imageDefault);
-                } else {
-                    selectedImageView.setImage(imageOne);
-                }
-            }
-        }
-        selectedImageView = null;
-        endImageView = null;
-        isDragging = false;
-    }
-
-    private void rhythm_UpdateImagesBetween(ImageView startImageView, ImageView endImageView) {
-        int startColumn = GridPane.getColumnIndex(startImageView);
-        int startRow = GridPane.getRowIndex(startImageView);
-        int endColumn = GridPane.getColumnIndex(endImageView);
-        int endRow = GridPane.getRowIndex(endImageView);
-
-        if (endColumn > startColumn && startRow == endRow) {
-            for (int column = startColumn + 1; column <= endColumn; column++) {
-                for (Node node : gridPane.getChildren()) {
-                    if (node instanceof ImageView imageView) {
-                        if (GridPane.getColumnIndex(imageView) == column && GridPane.getRowIndex(imageView) == startRow) {
-                            imageView.setImage(imageLong);
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
 
     @FXML
     private ImageView D2;
@@ -349,7 +245,6 @@ public class EditorController {
             }else {
                 Coordinate[1] -= 160;
                 dimension = 2;
-                isUp = true;
                 setNode.setData(new Data(2, true, false));
             }
         } else if (clickedImageView == D3) {
@@ -359,7 +254,6 @@ public class EditorController {
             }else {
                 Coordinate[1] -= 90;
                 dimension = 3;
-                isUp = true;
                 setNode.setData(new Data(3, true, false));
             }
         } else if (clickedImageView == D4) {
@@ -369,7 +263,6 @@ public class EditorController {
             }else {
                 Coordinate[1] -= 220 + 2.75;
                 dimension = 4;
-                isUp = true;
                 setNode.setData(new Data(4, true, false));
             }
         } else if (clickedImageView == D5) {
@@ -379,7 +272,6 @@ public class EditorController {
             }else {
                 Coordinate[1] -= 392 + 2.75;
                 dimension = 5;
-                isUp = true;
                 setNode.setData(new Data(5, true, false));
             }
         } else if (clickedImageView == D2_Down) {
