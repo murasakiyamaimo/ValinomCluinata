@@ -14,7 +14,7 @@ public class TreeNode<T extends Data> {
     private T data;
     private TreeNode<T> parent;
     private List<TreeNode<T>> children;
-    private Double[] coordinate = new Double[2];
+    private double[] coordinate = new double[2];
     private static final AtomicInteger nextID = new AtomicInteger(0);
     private final int id;
 
@@ -58,10 +58,6 @@ public class TreeNode<T extends Data> {
         return coordinate[1];
     }
 
-    public Double[] getCoordinate() {
-        return coordinate;
-    }
-
     public void setCoordinateX(Double X) {
         this.coordinate[0] = X;
     }
@@ -88,19 +84,49 @@ public class TreeNode<T extends Data> {
         return current;
     }
 
+    public boolean removeChildNode(TreeNode<T> childToRemove) {
+        return this.children.remove(childToRemove);
+    }
+
+    public boolean removeNode(TreeNode<T> nodeToRemove) {
+        if (nodeToRemove == this) {
+            System.out.println("ルートノードは直接削除できません。");
+            return false;
+        }
+        return removeNodeRecursive(this, nodeToRemove);
+    }
+
+    private boolean removeNodeRecursive(TreeNode<T> parent, TreeNode<T> nodeToRemove) {
+        for (TreeNode<T> child : new ArrayList<>(parent.children)) {
+            if (child == nodeToRemove) {
+                parent.removeChildNode(child);
+                return true;
+            }
+            if (removeNodeRecursive(child, nodeToRemove)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void drawPitch(GraphicsContext gc) {
         double nodeCoordinateX = this.getCoordinateX();
         double nodeCoordinateY = this.getCoordinateY();
+        Image isMutedLine;
         for (TreeNode<T> child : this.getChildren()) {
-            System.out.println(child.getCoordinateY());
+            if (child.getData().isMuted()) {
+                isMutedLine = DrawLine.mutedPitch_line;
+            }else {
+                isMutedLine = DrawLine.pitch_line;
+            }
             if (child.getData().getDimension() == 2 || child.getData().getDimension() == 3) {
                 DrawLine.draw(nodeCoordinateX, nodeCoordinateY, gc, child.getData().isUp(), child.getData().getDimension());
-                gc.drawImage(DrawLine.pitch_line, child.getCoordinateX(), child.getCoordinateY() - 2.75);
+                gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
             }else {
                 if (child.getData().isUp()) {
-                    gc.drawImage(DrawLine.pitch_line, child.getCoordinateX(), child.getCoordinateY());
+                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY());
                 }else {
-                    gc.drawImage(DrawLine.pitch_line, child.getCoordinateX(), child.getCoordinateY() - 6);
+                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 6);
                 }
                 DrawLine.draw(nodeCoordinateX, nodeCoordinateY, gc, child.getData().isUp(), child.getData().getDimension());
             }
@@ -109,10 +135,19 @@ public class TreeNode<T extends Data> {
     }
 
     public void rootCoordinate(double howUp) {
+        this.setCoordinateY(this.getCoordinateY() + howUp);
         for (TreeNode<T> child : this.getChildren()) {
-            child.setCoordinateY(child.getCoordinateY() + howUp);
             child.rootCoordinate(howUp);
         }
+    }
+
+    public ArrayList<Double> returnFrequencies() {
+        ArrayList<Double> frequencies = new ArrayList<>();
+        frequencies.add(data.getFrequency());
+        for (TreeNode<T> child : children) {
+            frequencies.addAll(child.returnFrequencies());
+        }
+        return frequencies;
     }
 
     public TreeNode<T> getNodeByPath(List<Integer> path) {
@@ -141,7 +176,7 @@ public class TreeNode<T extends Data> {
     }
 
     public TreeNode<T> SearchCoordinate(double X, double Y) {
-        if (X < coordinate[0] + 160 && X > coordinate[0] - 15 && Math.abs(coordinate[1] -Y) < 3) {
+        if (X < coordinate[0] + 160 && X > coordinate[0] - 15 && Math.abs(coordinate[1] -Y) < 6) {
             return this;
         }else {
             for (TreeNode<T> child : children) {
@@ -158,15 +193,21 @@ class Data {
     private int dimension;
     private boolean isUp;
     private boolean isMuted;
+    private double frequency;
 
-    public Data(int dimension, boolean isUp, boolean isMuted) {
+    public Data(int dimension, boolean isUp, boolean isMuted, double frequency) {
         this.dimension = dimension;
         this.isUp = isUp;
         this.isMuted = isMuted;
+        this.frequency = frequency;
     }
 
     public int getDimension() {
         return dimension;
+    }
+
+    public double getFrequency() {
+        return frequency;
     }
 
     public boolean isUp() {
@@ -177,10 +218,15 @@ class Data {
         return isMuted;
     }
 
+    public void setMuted(boolean isMuted) {
+        this.isMuted = isMuted;
+    }
+
 }
 
 class DrawLine {
     public static final Image pitch_line = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pitch-line.png")));
+    public static final Image mutedPitch_line = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pitch-line-dotted.png")));
 
     public static void draw(double rootX, double rootY, GraphicsContext gc, boolean isUp, int dimension) {
         if (dimension == 2) {

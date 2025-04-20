@@ -3,22 +3,28 @@ package net.murasakiyamaimo.valinomcluinata;
 import javax.sound.sampled.*;
 
 public class Synthesizer {
-
+    public static final int SINE = 0;
+    public static final int SAWTOOTH = 1;
+    public static final int SQUARE = 2;
+    public static final int TRIANGLE = 3;
     private final int SAMPLE_RATE = 44100;
+    private boolean isPlaying = false;
+    private SourceDataLine sourceLine;
 
-    public void playSound(double[] frequency, int type, int DURATION) throws LineUnavailableException {
+    public void playSound(double[] frequencies, int type, int DURATION) throws LineUnavailableException {
 
         // AudioFormatの設定
         AudioFormat audioFormat = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
 
         // SourceDataLineの取得
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-        SourceDataLine sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+        sourceLine = (SourceDataLine) AudioSystem.getLine(info);
         sourceLine.open(audioFormat);
         sourceLine.start();
+        isPlaying = true;
 
         // サイン波データの生成
-        byte[] buffer = generateWaves(frequency, type, DURATION);
+        byte[] buffer = generateWaves(frequencies, type, DURATION);
 
         // 再生
         sourceLine.write(buffer, 0, buffer.length);
@@ -26,8 +32,20 @@ public class Synthesizer {
         // 終了処理
         sourceLine.drain();
         sourceLine.close();
+        isPlaying = false;
 
         System.out.println(DURATION + " 秒間再生しました。");
+        for (double frequency : frequencies) {
+            System.out.println(frequency + " Hz");
+        }
+    }
+
+    public void stopSound() {
+        if (sourceLine != null && isPlaying) {
+            sourceLine.stop();
+            sourceLine.flush();
+            isPlaying = false;
+        }
     }
 
     private byte[] generateWaves(double[] frequencies, int type, int DURATION) {
@@ -39,13 +57,13 @@ public class Synthesizer {
             for (int i = 0; i < numSamples; i++) {
                 double time = (double) i / SAMPLE_RATE;
 
-                if (type == 0) {
+                if (type == SINE) {
                     combinedValues[i] += generateSineValue(frequency, time);
-                } else if (type == 1) {
+                } else if (type == SAWTOOTH) {
                     combinedValues[i] += generateSawtoothValue(frequency, time);
-                } else if (type == 2) {
+                } else if (type == SQUARE) {
                     combinedValues[i] += generateSquareValue(frequency, time);
-                } else if (type == 3) {
+                } else if (type == TRIANGLE) {
                     combinedValues[i] += generateTriangleValue(frequency, time);
                 }
             }
