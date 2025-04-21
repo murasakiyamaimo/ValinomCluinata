@@ -124,9 +124,9 @@ public class TreeNode<T extends Data> {
                 gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
             }else {
                 if (child.getData().isUp()) {
-                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY());
+                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
                 }else {
-                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 6);
+                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
                 }
                 DrawLine.draw(nodeCoordinateX, nodeCoordinateY, gc, child.getData().isUp(), child.getData().getDimension());
             }

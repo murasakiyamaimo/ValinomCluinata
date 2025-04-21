@@ -142,7 +142,6 @@ public class EditorController {
     private ArrayList<Double> rootX = new ArrayList<>();
     private ArrayList<Double> rootY = new ArrayList<>();
     private int sideIndex = 0;
-    private int heightIndex = 0;
     private ArrayList<TreeNode<Data>> pitchData = new ArrayList<>();
     public static double rootFrequency = Math.pow(2, 0.25) * 220;
     private boolean isPlaying = false;
@@ -269,7 +268,7 @@ public class EditorController {
                 pitch.get(sideIndex)[3] += 1;
                 howUp -= 220 - 6;
             } else {
-                Coordinate[1] -= 220 + 2.75;
+                Coordinate[1] -= 220;
                 dimension = 4;
                 frequency *= 7.0000 / 4;
             }
@@ -278,7 +277,7 @@ public class EditorController {
                 pitch.get(sideIndex)[4] += 1;
                 howUp -= 392 - 6;
             } else {
-                Coordinate[1] -= 392 + 2.75;
+                Coordinate[1] -= 392;
                 dimension = 5;
                 frequency *= 11.0000 / 8;
             }
@@ -307,7 +306,7 @@ public class EditorController {
                 pitch.get(sideIndex)[3] -= 1;
                 howUp += 220 - 6;
             } else {
-                Coordinate[1] += 220 + 2.75;
+                Coordinate[1] += 220 ;
                 dimension = 4;
                 isUp = false;
                 frequency *= 4.0000 / 7;
@@ -317,7 +316,7 @@ public class EditorController {
                 pitch.get(sideIndex)[4] -= 1;
                 howUp += 392 - 6;
             } else {
-                Coordinate[1] += 392 + 2.75;
+                Coordinate[1] += 392 ;
                 dimension = 5;
                 isUp = false;
                 frequency *= 8.0000 / 11;
@@ -341,33 +340,18 @@ public class EditorController {
             switch (event.getCode()) {
                 case RIGHT -> {
                     System.out.println("find RIGHT KEY");
-                    sideIndex++;
-                    heightIndex = 0;
-                    if (sideIndex >= rootX.size()) {
-                        rootX.add(rootX.get(sideIndex - 1) + 233);
-                        rootY.add(height / 2);
-                        gc.drawImage(rootImage, rootX.get(sideIndex), rootY.get(sideIndex) - 13.5);
-                        pitchData.add(new TreeNode<>(new Data(0, true, false, rootFrequency)));
-                        pitchData.getLast().setCoordinateX(rootX.get(sideIndex) + 30);
-                        pitchData.getLast().setCoordinateY(rootY.get(sideIndex));
-                        pitch.add(new int[5]);
-                    }
-                    System.out.println("Now side index is " + sideIndex);
-                    selectedPitchline = pitchData.get(sideIndex).getIDPath();
-                }
-                case LEFT -> {
-                    System.out.println("find LEFT KEY");
-                    if (sideIndex > 0) {
-                        sideIndex--;
-                    }
-                    heightIndex = 0;
-                    System.out.println("Now side index is " + sideIndex);
-                    selectedPitchline = pitchData.get(sideIndex).getIDPath();
+                    rootX.add(rootX.get(rootX.size() - 1) + 233);
+                    rootY.add(height / 2);
+                    gc.drawImage(rootImage, rootX.getLast(), rootY.getLast() - 13.5);
+                    pitchData.add(new TreeNode<>(new Data(0, true, false, rootFrequency)));
+                    pitchData.getLast().setCoordinateX(rootX.getLast() + 30);
+                    pitchData.getLast().setCoordinateY(rootY.getLast());
+                    pitch.add(new int[5]);
+                    drawChordDiagram();
                 }
                 case SPACE -> {
                     pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getData().setMuted(!pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getData().isMuted());
                     drawChordDiagram();
-                    System.out.println("Space");
                 }
             }
         } else if (event.getCode() == KeyCode.SHIFT) {
