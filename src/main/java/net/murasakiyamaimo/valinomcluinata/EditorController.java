@@ -139,10 +139,10 @@ public class EditorController {
     private boolean isPitch = true;
     private final Image pitch_line = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pitch-line.png")));
     private final Image rootImage = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/root-symbol.png")));
-    private ArrayList<Double> rootX = new ArrayList<>();
-    private ArrayList<Double> rootY = new ArrayList<>();
+    private final ArrayList<Double> rootX = new ArrayList<>();
+    private final ArrayList<Double> rootY = new ArrayList<>();
     private int sideIndex = 0;
-    private ArrayList<TreeNode<Data>> pitchData = new ArrayList<>();
+    private final ArrayList<TreeNode<Data>> pitchData = new ArrayList<>();
     public static double rootFrequency = Math.pow(2, 0.25) * 220;
     private boolean isPlaying = false;
     private SoundPlayer soundPlayer;
@@ -340,7 +340,7 @@ public class EditorController {
             switch (event.getCode()) {
                 case RIGHT -> {
                     System.out.println("find RIGHT KEY");
-                    rootX.add(rootX.get(rootX.size() - 1) + 233);
+                    rootX.add(rootX.getLast() + 233);
                     rootY.add(height / 2);
                     gc.drawImage(rootImage, rootX.getLast(), rootY.getLast() - 13.5);
                     pitchData.add(new TreeNode<>(new Data(0, true, false, rootFrequency)));
@@ -381,10 +381,8 @@ public class EditorController {
         }
     }
 
-    private ArrayList<ArrayList<Double>> frequencies = new ArrayList<>();
-
     public void playSound() {
-        frequencies = new ArrayList<>();
+        ArrayList<ArrayList<Double>> frequencies = new ArrayList<>();
         for (TreeNode<Data> rootNode : pitchData) {
             frequencies.add(rootNode.returnFrequencies());
             int rootIndex = pitchData.indexOf(rootNode);

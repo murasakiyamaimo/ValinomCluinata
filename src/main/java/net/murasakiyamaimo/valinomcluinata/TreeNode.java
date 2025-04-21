@@ -11,10 +11,10 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TreeNode<T extends Data> {
-    private T data;
+    private final T data;
     private TreeNode<T> parent;
-    private List<TreeNode<T>> children;
-    private double[] coordinate = new double[2];
+    private final List<TreeNode<T>> children;
+    private final double[] coordinate = new double[2];
     private static final AtomicInteger nextID = new AtomicInteger(0);
     private final int id;
 
@@ -35,10 +35,6 @@ public class TreeNode<T extends Data> {
 
     public T getData() {
         return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
     }
 
     public List<TreeNode<T>> getChildren() {
@@ -84,8 +80,8 @@ public class TreeNode<T extends Data> {
         return current;
     }
 
-    public boolean removeChildNode(TreeNode<T> childToRemove) {
-        return this.children.remove(childToRemove);
+    public void removeChildNode(TreeNode<T> childToRemove) {
+        this.children.remove(childToRemove);
     }
 
     public boolean removeNode(TreeNode<T> nodeToRemove) {
@@ -123,11 +119,7 @@ public class TreeNode<T extends Data> {
                 DrawLine.draw(nodeCoordinateX, nodeCoordinateY, gc, child.getData().isUp(), child.getData().getDimension());
                 gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
             }else {
-                if (child.getData().isUp()) {
-                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
-                }else {
-                    gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
-                }
+                gc.drawImage(isMutedLine, child.getCoordinateX(), child.getCoordinateY() - 2.75);
                 DrawLine.draw(nodeCoordinateX, nodeCoordinateY, gc, child.getData().isUp(), child.getData().getDimension());
             }
             child.drawPitch(gc);
@@ -143,7 +135,9 @@ public class TreeNode<T extends Data> {
 
     public ArrayList<Double> returnFrequencies() {
         ArrayList<Double> frequencies = new ArrayList<>();
-        frequencies.add(data.getFrequency());
+        if (!data.isMuted()) {
+            frequencies.add(data.getFrequency());
+        }
         for (TreeNode<T> child : children) {
             frequencies.addAll(child.returnFrequencies());
         }
@@ -180,8 +174,9 @@ public class TreeNode<T extends Data> {
             return this;
         }else {
             for (TreeNode<T> child : children) {
-                if (child.SearchCoordinate(X, Y) == child) {
-                    return child;
+                TreeNode<T> result = child.SearchCoordinate(X, Y);
+                if (result != null) {
+                    return result;
                 }
             }
         }
@@ -190,10 +185,10 @@ public class TreeNode<T extends Data> {
 }
 
 class Data {
-    private int dimension;
-    private boolean isUp;
+    private final int dimension;
+    private final boolean isUp;
     private boolean isMuted;
-    private double frequency;
+    private final double frequency;
 
     public Data(int dimension, boolean isUp, boolean isMuted, double frequency) {
         this.dimension = dimension;
