@@ -8,6 +8,10 @@ https://www.youtube.com/@L4MPLIGHT
 Webサイト
 https://lamplight0.sakura.ne.jp/a/
 
+## How to install
+Please download ValinomCluinata.zip from the site below and use it.
+https://github.com/murasakiyamaimo/ValinomCluinata/releases/tag/1.2.0-ver
+
 # ValinómCluináta(日本語)
 LΛMPLIGHTが発明した和音図を直感的に再生するプログラム。
 
@@ -16,6 +20,10 @@ YouTube
 https://www.youtube.com/@L4MPLIGHT  
 Webサイト
 https://lamplight0.sakura.ne.jp/a/
+
+## 使い方
+下のサイトよりValinomCluinata.zipをダウンロードしてお使いください。
+https://github.com/murasakiyamaimo/ValinomCluinata/releases/tag/1.2.0-ver
 
 # License
 Copyright 2025 murasakiyamaimo
