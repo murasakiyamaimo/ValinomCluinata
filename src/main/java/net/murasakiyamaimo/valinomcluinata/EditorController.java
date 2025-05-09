@@ -3,10 +3,7 @@ package net.murasakiyamaimo.valinomcluinata;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -33,6 +30,8 @@ public class EditorController {
     private TextField timeField;
     @FXML
     private ChoiceBox synType;
+    @FXML
+    private ScrollPane scrollPane;
 
     private GraphicsContext gc;
 
@@ -45,6 +44,8 @@ public class EditorController {
 
                 double width = score.getWidth();
                 height = score.getHeight();
+
+                System.out.println(height / 2);
 
                 gc.setFill(Color.web("#676681"));
                 gc.fillRect(0, 0, width, height);
@@ -59,6 +60,8 @@ public class EditorController {
 
                 gc.drawImage(rootImage, 30, height / 2 - 13.5);
                 gc.drawImage(pitch_line, 60, height / 2 - 2.75);
+
+                scrollPane.setVvalue(0.5);
             }
         }
 
