@@ -282,7 +282,7 @@ public class EditorController {
             } else {
                 Coordinate[1] -= 392;
                 dimension = 5;
-                frequency *= 11.0000 / 8;
+                frequency *= 11.0000 / 4;
             }
         } else if (clickedImageView == D2_Down) {
             if (isPitch) {
@@ -322,7 +322,7 @@ public class EditorController {
                 Coordinate[1] += 392 ;
                 dimension = 5;
                 isUp = false;
-                frequency *= 8.0000 / 11;
+                frequency *= 4.0000 / 11;
             }
         }
 
@@ -404,9 +404,9 @@ public class EditorController {
                 } else if (pitch.get(rootIndex)[3] < 0) {
                     frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(4.0000 / 7, Math.abs(pitch.get(rootIndex)[3])));
                 } else if (pitch.get(rootIndex)[4] > 0) {
-                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(11.0000 / 8, pitch.get(rootIndex)[4]));
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(11.0000 / 4, pitch.get(rootIndex)[4]));
                 } else if (pitch.get(rootIndex)[4] < 0) {
-                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(8.0000 / 11, Math.abs(pitch.get(rootIndex)[4])));
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(4.0000 / 11, Math.abs(pitch.get(rootIndex)[4])));
                 }
             }
         }
