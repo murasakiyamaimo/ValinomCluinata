@@ -1,16 +1,15 @@
 package net.murasakiyamaimo.valinomcluinata;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -24,12 +23,19 @@ public class EditorController {
     @FXML
     private AnchorPane AnchorPane;
     @FXML
-    private GridPane gridPane;
+    private ImageView PlayButtonImageView;
+    @FXML
+    private Button PlayButton;
+    @FXML
+    private TextField timeField;
+    @FXML
+    private ChoiceBox synType;
+    @FXML
+    private ScrollPane scrollPane;
 
     private GraphicsContext gc;
 
     private double height;
-
 
     public void initialize() {
         if (AnchorPane != null) {
@@ -38,6 +44,8 @@ public class EditorController {
 
                 double width = score.getWidth();
                 height = score.getHeight();
+
+                System.out.println(height / 2);
 
                 gc.setFill(Color.web("#676681"));
                 gc.fillRect(0, 0, width, height);
@@ -50,52 +58,19 @@ public class EditorController {
                     gc.strokeLine(0, i, width, i);
                 }
 
-                gc.setFill(Color.web("#f27992"));
-                gc.fillRect(60, height / 2 - 160, 16, 160);
-
-                gc.setFill(Color.web("#6cd985"));
-                gc.fillRect(60 + 173 - 16, height /2 - 90, 16, 90);
-
                 gc.drawImage(rootImage, 30, height / 2 - 13.5);
                 gc.drawImage(pitch_line, 60, height / 2 - 2.75);
-                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 90);
-                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 160);
-                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 220);
-                gc.drawImage(pitch_line, 60, height / 2 - 2.75 - 392);
 
-                gc.setFill(Color.web("#b795e9"));
-                double[] xPoints = {60, 60 + 177 - 16, 60 + 177, 60 + 16};
-                double[] yPoints = {height/2 - 2.75 , height/2 - 220 - 2.75, height/2 - 220 - 2.75, height/2 - 2.75};
-                gc.fillPolygon(xPoints, yPoints, 4);
-
-                xPoints = new double[]{60 + 173 - 16, 56, 56 + 16, 60 + 173};
-                yPoints = new double[]{height / 2 - 2.75, height / 2 - 392 - 2.75, height / 2 - 392 - 2.75, height / 2 - 2.75};
-                gc.setFill(Color.web("#ffc247"));
-                gc.fillPolygon(xPoints, yPoints, 4);
+                scrollPane.setVvalue(0.5);
             }
         }
 
         rootX.add(30.0);
         rootY.add(height / 2);
-        pitchData.add(new TreeNode<>(new Data(0, true, false)));
+        pitchData.add(new TreeNode<>(new Data(0, true, false, rootFrequency)));
         pitchData.getFirst().setCoordinateX(60.0);
-        pitchData.getFirst().setCoordinateY(height/2);
-
-        imageOne = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-one.png")));
-        imageLong = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-long.png")));
-        imageDefault = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/Step-null.png")));
-
-        // ImageViewに初期画像を設定
-        dragImageView1.setImage(imageDefault);
-        dragImageView2.setImage(imageDefault);
-        dragImageView3.setImage(imageDefault);
-        dragImageView4.setImage(imageDefault);
-
-        // イベントハンドラの設定
-        rhythm_setHandler(dragImageView1);
-        rhythm_setHandler(dragImageView2);
-        rhythm_setHandler(dragImageView3);
-        rhythm_setHandler(dragImageView4);
+        pitchData.getFirst().setCoordinateY(height / 2);
+        pitch.add(new int[5]);
 
         D2.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/2D.png"))));
         D3.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/3D.png"))));
@@ -117,6 +92,8 @@ public class EditorController {
         pitch_setHandler(D4_Down);
         pitch_setHandler(D5_Down);
 
+        PlayButton.setOnMouseClicked(this::playButton_handleMouseClicked);
+
         selectedPitchline = pitchData.getFirst().getIDPath();
 
         score.setOnMouseClicked(event -> {
@@ -124,7 +101,6 @@ public class EditorController {
             for (TreeNode<Data> node : pitchData) {
                 TreeNode<Data> searchedNode = node.SearchCoordinate(event.getX(), event.getY());
                 if (searchedNode != null) {
-                    System.out.println("found!");
                     selectedPitchline = searchedNode.getIDPath();
                     for (TreeNode<Data> rootNodes : pitchData) {
                         if (rootNodes.equals(searchedNode.getRoot())) {
@@ -132,97 +108,18 @@ public class EditorController {
                         }
                     }
                     System.out.println(selectedPitchline);
-                    System.out.println(sideIndex);
+                    drawChordDiagram();
                 }
             }
         });
+
+        PlayButtonImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/play.png"))));
+        synType.getItems().addAll("Sine", "Sawtooth", "Square", "Triangle");
+        synType.setValue("Sine");
+        timeField.setPromptText("和音図再生時間（秒）");
     }
 
     private List<Integer> selectedPitchline;
-
-    @FXML
-    private ImageView dragImageView1;
-    @FXML
-    private ImageView dragImageView2;
-    @FXML
-    private ImageView dragImageView3;
-    @FXML
-    private ImageView dragImageView4;
-
-    private Image imageOne;
-    private Image imageLong;
-    private Image imageDefault;
-    private ImageView selectedImageView;
-    private ImageView endImageView;
-    private double startX;
-    private double startY;
-    private boolean isDragging;
-    private static final double DRAG_THRESHOLD = 1.0;
-
-    private void rhythm_setHandler(ImageView imageView) {
-        imageView.setOnMousePressed(this::rhythm_handleMousePressed);
-        imageView.setOnMouseDragged(this::rhythm_handleMouseDragged);
-        imageView.setOnMouseReleased(this::rhythm_handleMouseReleased);
-    }
-
-    private void rhythm_handleMousePressed(MouseEvent event) {
-        if (event.isShiftDown()) {
-            selectedImageView = (ImageView) event.getSource();
-            startX = event.getX();
-            startY = event.getY();
-            isDragging = false;
-        }
-    }
-
-    private void rhythm_handleMouseDragged(MouseEvent event) {
-        if (event.isShiftDown() && selectedImageView != null) {
-            double deltaX = Math.abs(event.getX() - startX);
-            double deltaY = Math.abs(event.getY() - startY);
-            if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
-                isDragging = true;
-            }
-        }
-    }
-
-    private void rhythm_handleMouseReleased(MouseEvent event) {
-        if (event.isShiftDown() && selectedImageView != null) {
-            if (isDragging) {
-                endImageView = (ImageView) event.getSource();
-                rhythm_UpdateImagesBetween(selectedImageView, endImageView);
-            } else {
-                // クリック処理
-                if (selectedImageView.getImage() == imageOne) {
-                    selectedImageView.setImage(imageDefault);
-                } else {
-                    selectedImageView.setImage(imageOne);
-                }
-            }
-        }
-        selectedImageView = null;
-        endImageView = null;
-        isDragging = false;
-    }
-
-    private void rhythm_UpdateImagesBetween(ImageView startImageView, ImageView endImageView) {
-        int startColumn = GridPane.getColumnIndex(startImageView);
-        int startRow = GridPane.getRowIndex(startImageView);
-        int endColumn = GridPane.getColumnIndex(endImageView);
-        int endRow = GridPane.getRowIndex(endImageView);
-
-        if (endColumn > startColumn && startRow == endRow) {
-            for (int column = startColumn + 1; column <= endColumn; column++) {
-                for (Node node : gridPane.getChildren()) {
-                    if (node instanceof ImageView imageView) {
-                        if (GridPane.getColumnIndex(imageView) == column && GridPane.getRowIndex(imageView) == startRow) {
-                            imageView.setImage(imageLong);
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
 
     @FXML
     private ImageView D2;
@@ -241,15 +138,17 @@ public class EditorController {
     @FXML
     private ImageView D5_Down;
 
-    private final int[] pitch = new int[5];
+    private final ArrayList<int[]> pitch = new ArrayList<>();
     private boolean isPitch = true;
     private final Image pitch_line = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pitch-line.png")));
     private final Image rootImage = new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/root-symbol.png")));
-    private ArrayList<Double> rootX = new ArrayList<>();
-    private ArrayList<Double> rootY = new ArrayList<>();
+    private final ArrayList<Double> rootX = new ArrayList<>();
+    private final ArrayList<Double> rootY = new ArrayList<>();
     private int sideIndex = 0;
-    private int heightIndex = 0;
-    private ArrayList<TreeNode<Data>> pitchData = new ArrayList<>();
+    private final ArrayList<TreeNode<Data>> pitchData = new ArrayList<>();
+    public static double rootFrequency = Math.pow(2, 0.25) * 220;
+    private boolean isPlaying = false;
+    private SoundPlayer soundPlayer;
 
     private void pitch_setHandler(ImageView imageView) {
         imageView.setOnMouseClicked(this::pitch_handleMouseClicked);
@@ -312,131 +211,129 @@ public class EditorController {
     }
 
     private void drawChordDiagram() {
-        gc.setFill(Color.web("#676681"));
-        gc.fillRect(rootX.get(sideIndex), 0, rootX.get(sideIndex) + 173 + 60, height);
+        for (int i = 0; i < pitchData.size(); i++) {
+            gc.setFill(Color.web("#676681"));
+            gc.fillRect(rootX.get(i), 0, 173 + 60, height);
 
-        gc.setStroke(Color.web("a9a9b4"));
-        gc.strokeLine(rootX.get(sideIndex), height / 2, rootX.get(sideIndex) + 173 + 60, height / 2);
+            gc.setStroke(Color.web("a9a9b4"));
+            gc.strokeLine(rootX.get(i), height / 2, rootX.get(i) + 173 + 60, height / 2);
 
-        gc.setStroke(Color.web("#8d8c9d"));
-        for (double i = height / 2 % 160; i < height; i += 160) {
-            gc.strokeLine(rootX.get(sideIndex), i, rootX.get(sideIndex) + 173 + 60, i);
+            gc.setStroke(Color.web("#8d8c9d"));
+            for (double j = height / 2 % 160; j < height; j += 160) {
+                gc.strokeLine(rootX.get(i), j, rootX.get(i) + 173 + 60, j);
+            }
+
+            pitchData.get(i).drawPitch(gc);
+
+            if (!pitchData.get(i).getData().isMuted()) {
+                gc.drawImage(DrawLine.pitch_line, rootX.get(i) + 30, rootY.get(i) - 2.75);
+            } else {
+                gc.drawImage(DrawLine.mutedPitch_line, rootX.get(i) + 30, rootY.get(i) - 2.75);
+            }
+            gc.drawImage(rootImage, rootX.get(i), rootY.get(i) - 13.5);
         }
 
-        pitchData.get(sideIndex).setCoordinateX(rootX.get(sideIndex) + 30);
-        pitchData.get(sideIndex).setCoordinateY(rootY.get(heightIndex));
-
-        pitchData.get(sideIndex).drawPitch(gc);
-
-        gc.drawImage(pitch_line, rootX.get(sideIndex) + 30, rootY.get(sideIndex) - 2.75);
-        gc.drawImage(rootImage, rootX.get(sideIndex), rootY.get(sideIndex) - 13.5);
+        gc.setFill(Color.color(0.5, 0.76, 1, 0.3));
+        gc.fillRoundRect(pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getCoordinateX() - 4, pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getCoordinateY() - 5, 181, 10, 5, 5);
     }
 
     private void pitch_handleMouseClicked(MouseEvent event) {
         ImageView clickedImageView = (ImageView) event.getSource();
         TreeNode<Data> selectedNode = pitchData.get(sideIndex).getNodeByPath(selectedPitchline);
         double howUp = 0;
-        Double[] Coordinate = selectedNode.getCoordinate();
+        double[] Coordinate = new double[2];
+        double frequency = pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getData().getFrequency();
+        Coordinate[0] = selectedNode.getCoordinateX();
+        Coordinate[1] = selectedNode.getCoordinateY();
         int dimension = 0;
         boolean isUp = true;
         boolean isMuted = false;
-        TreeNode<Data> setNode = new TreeNode<>(new Data(0, true, false));
-        System.out.println("setCoordinate:" + Coordinate[1]);
         if (clickedImageView == D2) {
             if (isPitch) {
-                pitch[1] += 1;
+                pitch.get(sideIndex)[1] += 1;
                 howUp -= 160;
-            }else {
+            } else {
                 Coordinate[1] -= 160;
                 dimension = 2;
-                isUp = true;
-                setNode.setData(new Data(2, true, false));
+                frequency *= 3.0000 / 2;
             }
         } else if (clickedImageView == D3) {
             if (isPitch) {
-                pitch[2] += 1;
+                pitch.get(sideIndex)[2] += 1;
                 howUp -= 90;
-            }else {
+            } else {
                 Coordinate[1] -= 90;
                 dimension = 3;
-                isUp = true;
-                setNode.setData(new Data(3, true, false));
+                frequency *= 5.0000 / 4;
             }
         } else if (clickedImageView == D4) {
             if (isPitch) {
-                pitch[3] += 1;
+                pitch.get(sideIndex)[3] += 1;
                 howUp -= 220 - 6;
-            }else {
-                Coordinate[1] -= 220 + 2.75;
+            } else {
+                Coordinate[1] -= 220;
                 dimension = 4;
-                isUp = true;
-                setNode.setData(new Data(4, true, false));
+                frequency *= 7.0000 / 4;
             }
         } else if (clickedImageView == D5) {
             if (isPitch) {
-                pitch[4] += 1;
+                pitch.get(sideIndex)[4] += 1;
                 howUp -= 392 - 6;
-            }else {
-                Coordinate[1] -= 392 + 2.75;
+            } else {
+                Coordinate[1] -= 392;
                 dimension = 5;
-                isUp = true;
-                setNode.setData(new Data(5, true, false));
+                frequency *= 11.0000 / 4;
             }
         } else if (clickedImageView == D2_Down) {
             if (isPitch) {
-                pitch[1] -= 1;
+                pitch.get(sideIndex)[1] -= 1;
                 howUp += 160;
-            }else {
+            } else {
                 Coordinate[1] += 160;
                 dimension = 2;
                 isUp = false;
-                setNode.setData(new Data(2, false, false));
+                frequency *= 2.0000 / 3;
             }
         } else if (clickedImageView == D3_Down) {
             if (isPitch) {
-                pitch[2] -= 1;
+                pitch.get(sideIndex)[2] -= 1;
                 howUp += 90;
-            }else {
+            } else {
                 Coordinate[1] += 90;
                 dimension = 3;
                 isUp = false;
-                setNode.setData(new Data(3, false, false));
+                frequency *= 4.0000 / 5;
             }
         } else if (clickedImageView == D4_Down) {
             if (isPitch) {
-                pitch[3] -= 1;
+                pitch.get(sideIndex)[3] -= 1;
                 howUp += 220 - 6;
-            }else {
-                Coordinate[1] += 220 + 2.75;
+            } else {
+                Coordinate[1] += 220 ;
                 dimension = 4;
                 isUp = false;
-                setNode.setData(new Data(4, false, false));
+                frequency *= 4.0000 / 7;
             }
         } else if (clickedImageView == D5_Down) {
             if (isPitch) {
-                pitch[4] -= 1;
+                pitch.get(sideIndex)[4] -= 1;
                 howUp += 392 - 6;
-            }else {
-                Coordinate[1] += 392 + 2.75;
+            } else {
+                Coordinate[1] += 392 ;
                 dimension = 5;
                 isUp = false;
-                setNode.setData(new Data(5, false, false));
+                frequency *= 4.0000 / 11;
             }
         }
 
         if (!isPitch) {
-            setNode.setCoordinateX(Coordinate[0]);
-            setNode.setCoordinateY(Coordinate[1]);
-
-            pitchData.get(sideIndex).getNodeByPath(selectedPitchline).addChild(new TreeNode<>(new Data(dimension, isUp, isMuted)));
+            pitchData.get(sideIndex).getNodeByPath(selectedPitchline).addChild(new TreeNode<>(new Data(dimension, isUp, isMuted, frequency)));
             pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getChildren().getLast().setCoordinateX(Coordinate[0]);
             pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getChildren().getLast().setCoordinateY(Coordinate[1]);
-        }else {
+        } else {
             rootY.set(sideIndex, rootY.get(sideIndex) + howUp);
             pitchData.get(sideIndex).rootCoordinate(howUp);
         }
-
-        System.out.println("childY:" + setNode.getCoordinateY());
 
         drawChordDiagram();
     }
@@ -446,32 +343,86 @@ public class EditorController {
             switch (event.getCode()) {
                 case RIGHT -> {
                     System.out.println("find RIGHT KEY");
-                    sideIndex++;
-                    heightIndex = 0;
-                    if (sideIndex >= rootX.size()) {
-                        rootX.add(rootX.get(sideIndex - 1) + 233);
-                        rootY.add(height / 2);
-                        gc.drawImage(rootImage, rootX.get(sideIndex), rootY.get(sideIndex) - 13.5);
-                        pitchData.add(new TreeNode<>(new Data(0, true, false)));
-                        pitchData.getLast().setCoordinateX(rootX.get(sideIndex) + 30);
-                        pitchData.getLast().setCoordinateY(rootY.get(sideIndex));
-                    }
-                    System.out.println("Now side index is " + sideIndex);
-                    selectedPitchline = pitchData.get(sideIndex).getIDPath();
+                    rootX.add(rootX.getLast() + 233);
+                    rootY.add(height / 2);
+                    gc.drawImage(rootImage, rootX.getLast(), rootY.getLast() - 13.5);
+                    pitchData.add(new TreeNode<>(new Data(0, true, false, rootFrequency)));
+                    pitchData.getLast().setCoordinateX(rootX.getLast() + 30);
+                    pitchData.getLast().setCoordinateY(rootY.getLast());
+                    pitch.add(new int[5]);
+                    drawChordDiagram();
                 }
-                case LEFT -> {
-                    System.out.println("find LEFT KEY");
-                    if (sideIndex > 0) {
-                        sideIndex--;
-                    }
-                    heightIndex = 0;
-                    System.out.println("Now side index is " + sideIndex);
-                    selectedPitchline = pitchData.get(sideIndex).getIDPath();
+                case SPACE -> {
+                    pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getData().setMuted(!pitchData.get(sideIndex).getNodeByPath(selectedPitchline).getData().isMuted());
+                    drawChordDiagram();
                 }
             }
-        }else if (event.getCode() == KeyCode.SHIFT) {
+        } else if (event.getCode() == KeyCode.SHIFT) {
             isPitch = !isPitch;
+        } else if (event.getCode() == KeyCode.DELETE) {
+            boolean deleted = pitchData.get(sideIndex).removeNode(pitchData.get(sideIndex).getNodeByPath(selectedPitchline));
+            if (!deleted) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("エラー");
+                alert.setContentText("ルート音は削除できません");
+                alert.show();
+            }
+            selectedPitchline = pitchData.get(sideIndex).getIDPath();
+            drawChordDiagram();
         }
     }
 
+    public void playButton_handleMouseClicked(MouseEvent event) {
+        if (!isPlaying) {
+            playSound();
+            isPlaying = true;
+            PlayButtonImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/pause.png"))));
+        }else {
+            isPlaying = false;
+            soundPlayer.stopSound();
+            PlayButtonImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/play.png"))));
+        }
+    }
+
+    public void playSound() {
+        ArrayList<ArrayList<Double>> frequencies = new ArrayList<>();
+        for (TreeNode<Data> rootNode : pitchData) {
+            frequencies.add(rootNode.returnFrequencies());
+            int rootIndex = pitchData.indexOf(rootNode);
+            for (int i = 0; i < frequencies.getLast().size(); i++) {
+                System.out.println(pitch.get(rootIndex)[1]);
+                if (pitch.get(rootIndex)[1] > 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(3.0000 / 2, pitch.get(rootIndex)[1]));
+                } else if (pitch.get(rootIndex)[1] < 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(2.0000 / 3, Math.abs(pitch.get(rootIndex)[1])));
+                } else if (pitch.get(rootIndex)[2] > 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(5.0000 / 4, pitch.get(rootIndex)[2]));
+                } else if (pitch.get(rootIndex)[2] < 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(4.0000 / 5, Math.abs(pitch.get(rootIndex)[2])));
+                } else if (pitch.get(rootIndex)[3] > 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(7.0000 / 4, pitch.get(rootIndex)[3]));
+                } else if (pitch.get(rootIndex)[3] < 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(4.0000 / 7, Math.abs(pitch.get(rootIndex)[3])));
+                } else if (pitch.get(rootIndex)[4] > 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(11.0000 / 4, pitch.get(rootIndex)[4]));
+                } else if (pitch.get(rootIndex)[4] < 0) {
+                    frequencies.getLast().set(i, frequencies.getLast().get(i) * Math.pow(4.0000 / 11, Math.abs(pitch.get(rootIndex)[4])));
+                }
+            }
+        }
+        soundPlayer = new SoundPlayer(
+                synType.getSelectionModel().getSelectedIndex(),
+                Integer.parseInt(timeField.getText()),
+                frequencies
+        );
+        soundPlayer.setOnSucceeded(event -> {
+            isPlaying = false;
+            PlayButtonImageView.setImage(new Image(Objects.requireNonNull(EditorController.class.getResourceAsStream("images/play.png"))));
+        });
+        Thread synThread = new Thread(soundPlayer);
+        synThread.setDaemon(true);
+        synThread.start();
+
+
+    }
 }
